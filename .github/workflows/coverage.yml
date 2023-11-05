@@ -22,8 +22,8 @@ jobs:
       - name: Go Pipeline Action
         uses: trapajim/go-pipeline-action@v1
         with:
-        go-version: ${{ matrix.go_version }}
-        go-test-flags: ./... -v -covermode=atomic -coverprofile=coverprofile.out
-        go-vet: true
-        codecov-token: ${{ secrets.CODECOV_TOKEN }}
-        coverage-file: coverprofile.out
+          go-version: ${{ matrix.go_version }}
+          go-test-flags: ./... -v -covermode=atomic -coverprofile=coverprofile.out
+          go-vet: true
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
+          coverage-file: coverprofile.out
