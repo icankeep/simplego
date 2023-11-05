@@ -1,5 +1,5 @@
 # simplego
-![Build Status](https://github.com/icankeep/simplego/actions/workflows/main.yaml/badge.svg)
+![Build Status](https://github.com/icankeep/simplego/actions/workflows/main.yml/badge.svg)
 
 [WIP] Simple code for go, common lib for go language.
 
