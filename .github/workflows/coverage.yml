@@ -1,0 +1,29 @@
+name: Coverage
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  tests:
+    name: Test on node ${{ matrix.go_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        go_version: ['1.20', '1.21']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup Go environment, version=${{ matrix.go_version }}
+        uses: actions/setup-go@v4.1.0
+        with:
+          go-version: ${{ matrix.go_version }}
+      - name: Go Pipeline Action
+        uses: trapajim/go-pipeline-action@v1
+        with:
+        go-version: ${{ matrix.go_version }}
+        go-test-flags: ./... -v -covermode=atomic -coverprofile=coverprofile.out
+        go-vet: true
+        codecov-token: ${{ secrets.CODECOV_TOKEN }}
+        coverage-file: coverprofile.out
