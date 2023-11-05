@@ -1,2 +1,2 @@
 test:
-	go test -v -run ^Test_* ./setx
+	go test -v ./...
