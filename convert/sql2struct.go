@@ -1,25 +1,49 @@
-package main
+package convert
 
 import (
 	"fmt"
+	"github.com/icankeep/simplego/fmtx"
+	"github.com/icankeep/simplego/utils"
+	"log"
 	"regexp"
 	"strings"
 )
 
-const sql = `
-CREATE TABLE Persons (
-    PersonID int COMMENT '123',
-    LastName varchar(255),
-    FirstName varchar(255),
-    Address varchar(255),
-    City varchar(255)
-) ENGINE=InnoDB AUTO_INCREMENT=652 DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
+var (
+	TableNamePattern         = "(?i)create\\s+table\\s+`?([^\\s\\(`]+)`?"
+	TableFieldPattern        = "(?i)\\s*`?([^`\\s]+)`?\\s+(tinyint|smallint|int|mediumint|bigint|float|double|decimal|varchar|char|tinytext|text|mediumtext|longtext|datetime|time|date|enum|set|blob|timestamp)[\\s,\\)\\(]+(.+)"
+	TableFieldCommentPattern = `(?i)\s+COMMENT ['"]([^'"]+)['"]`
+	TableCommentPattern      = `(?i)\s*\).+COMMENT=['"]([^'"]+)['"]`
+	StructTemplate           = `%s
+type %s struct {
+%s}
 `
-
-type Person struct {
-	a string
-	b int
-}
+	StructLineTemplate = "\t%s %s `%s` %s\n"
+	StructTagTemplate  = "%s:\"%s\""
+	DataTypeMap        = map[string]string{
+		"tinyint":    "int8",
+		"smallint":   "int16",
+		"mediumint":  "int32",
+		"int":        "int64",
+		"bigint":     "int64",
+		"float":      "float32",
+		"double":     "float64",
+		"decimal":    "float64",
+		"char":       "string",
+		"varchar":    "string",
+		"tinytext":   "string",
+		"text":       "string",
+		"mediumtext": "string",
+		"longtext":   "string",
+		"time":       "time.Time",
+		"date":       "time.Time",
+		"datetime":   "time.Time",
+		"timestamp":  "int64",
+		"enum":       "string",
+		"set":        "string",
+		"blob":       "string",
+	}
+)
 
 type TableField struct {
 	Name     string
@@ -34,11 +58,23 @@ type SQLParseHandler struct {
 	TableComment string
 }
 
-const (
-	TableNamePattern    = "(?i)create\\s+table\\s+`?([^\\s\\(]+)`?"
-	TableFieldPattern   = "(?i)\\s*`?([^`\\s]+)`?\\s+(tinyint|smallint|int|mediumint|bigint|float|double|decimal|varchar|char|tinytext|text|mediumtext|longtext|datetime|time|date|enum|set|blob|timestamp).*(comment\\s+['\"]([^'\"]+)['\"])"
-	TableCommentPattern = `(?i)\s*\).+COMMENT=['"]([^'"]+)['"]`
-)
+type StructInfo struct {
+	Name    string
+	Fields  []*StrucField
+	Comment string
+}
+
+type StrucField struct {
+	Name     string
+	DataType string
+	Tags     []*StructTag
+	Comment  string
+}
+
+type StructTag struct {
+	TagType string
+	Value   string
+}
 
 func ParseTableName(sql string) (string, bool) {
 	sql = strings.TrimSpace(sql)
@@ -53,6 +89,7 @@ func ParseTableName(sql string) (string, bool) {
 
 func ParseTableFields(sql string) ([]*TableField, bool) {
 	reg := regexp.MustCompile(TableFieldPattern)
+	commentReg := regexp.MustCompile(TableFieldCommentPattern)
 	ret := reg.FindAllStringSubmatch(sql, -1)
 	if len(ret) == 0 {
 		return nil, false
@@ -60,10 +97,12 @@ func ParseTableFields(sql string) ([]*TableField, bool) {
 
 	fields := make([]*TableField, 0)
 	for _, line := range ret {
+		commentMatch := commentReg.FindStringSubmatch(line[0])
+		comment := utils.SafeIndexValueOrDefault(commentMatch, 1)
 		fields = append(fields, &TableField{
 			Name:     line[1],
 			DataType: line[2],
-			Comment:  line[3],
+			Comment:  comment,
 		})
 	}
 	return fields, true
@@ -100,30 +139,84 @@ func (h *SQLParseHandler) parse(sql string) (ok bool) {
 	return true
 }
 
-func (h *SQLParseHandler) ToGoStruct(sql string) error {
+func ToGoStruct(sql string, tagTypes []string) (string, error) {
+
+	h := &SQLParseHandler{}
 	if ok := h.parse(sql); !ok {
-		return fmt.Errorf("invalid create table SQL")
+		return "", fmt.Errorf("invalid create table SQL")
 	}
 
+	structInfo := &StructInfo{}
 	// 1. 将table name转为大驼峰, Go结构体名
+	structInfo.Name = UnderscoreToUpperCamelCase(h.TableName)
 
 	// 2. 遍历字段
+	fields := make([]*StrucField, 0)
+	for _, tableField := range h.TableFields {
+		tags := make([]*StructTag, 0)
+		for _, tagType := range tagTypes {
+			tags = append(tags, GetTag(tagType, tableField.Name))
+		}
+		fields = append(fields, &StrucField{
+			Name:     UnderscoreToUpperCamelCase(tableField.Name),
+			DataType: DataTypeMap[tableField.DataType],
+			Tags:     tags,
+			Comment:  tableField.Comment,
+		})
+	}
+	structInfo.Fields = fields
 
-	// 3. format结构体字符串
+	// 3. 结构体注释
+	structInfo.Comment = h.TableComment
+
+	// 4. format结构体字符串
+	return FormatGoStruct(structInfo), nil
 }
 
-func main() {
-	s := strings.TrimSpace(sql)
-	ParseTableComment(s)
+func GetTag(tagType, fieldName string) *StructTag {
+	var value string
+
+	switch tagType {
+	case "json":
+		value = UnderscoreToLowerCamelCase(fieldName)
+	case "gorm":
+		value = fieldName
+	case "xml":
+		value = fieldName
+	default:
+		value = UnderscoreToUpperCamelCase(fieldName)
+	}
+
+	return &StructTag{
+		TagType: tagType,
+		Value:   value,
+	}
 }
 
-const StructTemplate = `
-type {tableName} struct {
-	
-}
-`
+func FormatGoStruct(structInfo *StructInfo) string {
+	fieldLines := make([]string, 0)
+	for _, field := range structInfo.Fields {
+		tagStrs := make([]string, 0)
+		for _, tag := range field.Tags {
+			tagStrs = append(tagStrs, fmt.Sprintf(StructTagTemplate, tag.TagType, tag.Value))
+		}
+		comment := ""
+		if field.Comment != "" {
+			comment = fmt.Sprintf("// %s", field.Comment)
+		}
+		fieldLine := fmt.Sprintf(StructLineTemplate, field.Name, field.DataType, strings.Join(tagStrs, " "), comment)
+		fieldLines = append(fieldLines, fieldLine)
+	}
+	comment := ""
+	if structInfo.Comment != "" {
+		comment = fmt.Sprintf("// %s %s", structInfo.Name, structInfo.Comment)
+	}
+	str := fmt.Sprintf(StructTemplate, comment, structInfo.Name, strings.Join(fieldLines, ""))
 
-//
-//func SQL2Struct(sql string) string {
-//
-//}
+	fmtStr, err := fmtx.FormatGoCode(str)
+	if err != nil {
+		log.Printf("format go struct error: %v\n", err)
+		return str
+	}
+	return fmtStr
+}
