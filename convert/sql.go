@@ -58,24 +58,6 @@ type SQLParseHandler struct {
 	TableComment string
 }
 
-type StructInfo struct {
-	Name    string
-	Fields  []*StrucField
-	Comment string
-}
-
-type StrucField struct {
-	Name     string
-	DataType string
-	Tags     []*StructTag
-	Comment  string
-}
-
-type StructTag struct {
-	TagType string
-	Value   string
-}
-
 func ParseTableName(sql string) (string, bool) {
 	sql = strings.TrimSpace(sql)
 
@@ -151,13 +133,13 @@ func ToGoStruct(sql string, tagTypes []string) (string, error) {
 	structInfo.Name = UnderscoreToUpperCamelCase(h.TableName)
 
 	// 2. 遍历字段
-	fields := make([]*StrucField, 0)
+	fields := make([]*StructField, 0)
 	for _, tableField := range h.TableFields {
 		tags := make([]*StructTag, 0)
 		for _, tagType := range tagTypes {
 			tags = append(tags, GetTag(tagType, tableField.Name))
 		}
-		fields = append(fields, &StrucField{
+		fields = append(fields, &StructField{
 			Name:     UnderscoreToUpperCamelCase(tableField.Name),
 			DataType: DataTypeMap[tableField.DataType],
 			Tags:     tags,
@@ -171,26 +153,6 @@ func ToGoStruct(sql string, tagTypes []string) (string, error) {
 
 	// 4. format结构体字符串
 	return FormatGoStruct(structInfo), nil
-}
-
-func GetTag(tagType, fieldName string) *StructTag {
-	var value string
-
-	switch tagType {
-	case "json":
-		value = UnderscoreToLowerCamelCase(fieldName)
-	case "gorm":
-		value = fieldName
-	case "xml":
-		value = fieldName
-	default:
-		value = UnderscoreToUpperCamelCase(fieldName)
-	}
-
-	return &StructTag{
-		TagType: tagType,
-		Value:   value,
-	}
 }
 
 func FormatGoStruct(structInfo *StructInfo) string {
