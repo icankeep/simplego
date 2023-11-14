@@ -1,7 +1,6 @@
 package fmtx
 
 import (
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -20,5 +19,5 @@ func TestFmtGo(t *testing.T) {
 	//file.Write([]byte(fmtStr))
 
 	a.Equal(expected, fmtStr)
-	fmt.Println(fmtStr)
+	//fmt.Println(fmtStr)
 }

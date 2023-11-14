@@ -13,3 +13,10 @@ func SafeIndexValueOrDefault[T any](s []T, idx int) (t T) {
 	}
 	return s[idx]
 }
+
+func If[T any](cond bool, onTrue T, onFalse T) T {
+	if cond {
+		return onTrue
+	}
+	return onFalse
+}

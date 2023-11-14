@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/icankeep/simplego/fmtx"
 	"github.com/icankeep/simplego/setx"
+	"github.com/icankeep/simplego/slicex"
+	"github.com/icankeep/simplego/utils"
 	"regexp"
 	"strings"
 )
@@ -20,6 +22,7 @@ type StructField struct {
 	DataType string
 	Tags     []*StructTag
 	TagsStr  string
+	LineStr  string
 	Comment  string
 }
 
@@ -29,16 +32,17 @@ type StructTag struct {
 }
 
 var (
-	TestStruct       = "type Person struct {\n\tName     string `json:\"name\"`\n\tAge      int    `json:\"age\"`\n\tLocation string `json:\"location\"`\n}"
-	StructPattern    = `\s*type\s+([^\s]+)\s+struct\s+{([^}]+)}`
-	FieldLinePattern = "\\s+([^\\s]+)?\\s+([^\\s]+)([^\\n\\r]*)"
-	TagsPattern      = "`(.+)`"
-	TagPattern       = "([^\\s:]+):\"([^\"]+)\""
+	TestStruct          = "type Person struct {\n\tName     string `json:\"name\"`\n\tAge      int    `json:\"age\"`\n\tLocation string `json:\"location\"`\n}"
+	StructPattern       = `\s*type\s+([^\s]+)\s+struct\s+{([^}]+)}`
+	FieldLinePattern    = "\\s+(([^\\s]+)?\\s+([^\\s]+)([^\\n\\r]*))"
+	FieldCommentPattern = "(//[^\\n\\r]+)"
+	TagsPattern         = "`(.+)`"
+	TagPattern          = "([^\\s:]+):\"([^\"]+)\""
 )
 
 type StructParseHandler struct {
-	Input      string `json:"input"`
-	FmtInput   string
+	Input      string `json:"input"`     // Required ...
+	FmtInput   string `json:"fmt_input"` // Required ssss ...
 	Output     string
 	AddTags    []string
 	DeleteTags []string
@@ -78,6 +82,7 @@ func (s *StructParseHandler) parseStruct() bool {
 
 func (s *StructParseHandler) parseFields() bool {
 	reg := regexp.MustCompile(FieldLinePattern)
+	fieldCommentReg := regexp.MustCompile(FieldCommentPattern)
 
 	match := reg.FindAllStringSubmatch(s.StructBody, -1)
 	if len(match) == 0 {
@@ -85,12 +90,15 @@ func (s *StructParseHandler) parseFields() bool {
 	}
 	fields := make([]*StructField, 0)
 	for _, line := range match {
-		tagsStr, tags := s.parseTags(line[3])
+		commentMatch := fieldCommentReg.FindStringSubmatch(line[0])
+		tagsStr, tags := s.parseTags(line[4])
 		fields = append(fields, &StructField{
-			Name:     line[1],
-			DataType: line[2],
+			Name:     line[2],
+			DataType: line[3],
 			TagsStr:  tagsStr,
 			Tags:     tags,
+			LineStr:  line[1],
+			Comment:  utils.SafeIndexValueOrDefault(commentMatch, 1),
 		})
 	}
 	s.Fields = fields
@@ -126,7 +134,10 @@ func (s *StructParseHandler) Handle(input string) (string, error) {
 
 	s.Output = s.FmtInput
 	for _, field := range s.Fields {
-		tagTypes := setx.Set[string]{}
+		if len(field.Name) == 0 {
+			continue
+		}
+		tagTypes := setx.NewSet[string]()
 		for _, tag := range field.Tags {
 			tagTypes.Add(tag.TagType)
 		}
@@ -135,32 +146,47 @@ func (s *StructParseHandler) Handle(input string) (string, error) {
 			if tagTypes.Contains(tag) {
 				continue
 			}
-			newTagsStr = fmt.Sprintf("%s %s:\"%s\"", newTagsStr, tag, GetTag(tag, field.Name))
+			newTagsStr = fmt.Sprintf("%s %s:\"%s\"", newTagsStr, tag, GetTagValue(tag, field.Name))
 		}
 		for _, tag := range s.DeleteTags {
-			if !tagTypes.Contains(tag) {
-				continue
-			}
-			tagStr := fmt.Sprintf("%s:\"%s\"", tag, GetTag(tag, field.Name))
+			tagStr := fmt.Sprintf("%s:\"%s\"", tag, GetTagValue(tag, field.Name))
 			newTagsStr = strings.Replace(newTagsStr, " "+tagStr, "", 1)
 			newTagsStr = strings.Replace(newTagsStr, tagStr, "", 1)
 		}
 		newTagsStr = strings.TrimSpace(newTagsStr)
-		s.Output = strings.Replace(s.Output, field.TagsStr, newTagsStr, 1)
+		newLine := fmt.Sprintf("%s %s", field.Name, field.DataType)
+		if len(newTagsStr) != 0 {
+			newLine += " `" + newTagsStr + "`"
+		}
+		if len(field.Comment) != 0 {
+			newLine += " " + field.Comment
+		}
+
+		s.Output = strings.Replace(s.Output, field.LineStr, newLine, 1)
 	}
 	return s.Output, nil
 }
 
-func GetTag(tagType, fieldName string) *StructTag {
-	var value string
+func GetTagValue(tagType, fieldName string) string {
+	return GetTag(tagType, fieldName, nil).Value
+}
 
+func GetTag(tagType, fieldName string, originNameTags []string) *StructTag {
+	if slicex.Contains(originNameTags, tagType) {
+		return &StructTag{
+			TagType: tagType,
+			Value:   fieldName,
+		}
+	}
+
+	var value string
 	switch tagType {
 	case "json":
-		value = UnderscoreToLowerCamelCase(fieldName)
+		value = UnderscoreToUpperCamelCase(fieldName)
 	case "gorm":
-		value = fieldName
+		value = CamelCaseToUnderscore(fieldName)
 	case "xml":
-		value = fieldName
+		value = CamelCaseToUnderscore(fieldName)
 	case "yaml":
 		value = UnderscoreToUpperCamelCase(fieldName)
 	default:
