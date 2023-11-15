@@ -11,7 +11,7 @@ import (
 
 var (
 	TableNamePattern         = "(?i)create\\s+table\\s+`?([^\\s\\(`]+)`?"
-	TableFieldPattern        = "(?i)\\s*`?([^`\\s]+)`?\\s+(tinyint|smallint|int|mediumint|bigint|float|double|decimal|varchar|char|tinytext|text|mediumtext|longtext|datetime|time|date|enum|set|blob|timestamp)[\\s,\\)\\(]+(.+)"
+	TableFieldPattern        = "(?i)\\s*`?([^`\\s]+)`?\\s+(tinyint\\(1\\)|tinyint|smallint|int|mediumint|bigint|float|double|decimal|varchar|char|tinytext|text|mediumtext|longtext|datetime|time|date|enum|set|blob|timestamp)[\\s,\\)\\(]+(.+)"
 	TableFieldCommentPattern = `(?i)\s+COMMENT ['"]([^'"]+)['"]`
 	TableCommentPattern      = `(?i)\s*\).+COMMENT=['"]([^'"]+)['"]`
 	StructTemplate           = `%s
@@ -21,6 +21,7 @@ type %s struct {
 	StructLineTemplate = "\t%s %s `%s` %s\n"
 	StructTagTemplate  = "%s:\"%s\""
 	DataTypeMap        = map[string]string{
+		"tinyint(1)": "bool",
 		"tinyint":    "int8",
 		"smallint":   "int16",
 		"mediumint":  "int32",
@@ -38,7 +39,7 @@ type %s struct {
 		"time":       "time.Time",
 		"date":       "time.Time",
 		"datetime":   "time.Time",
-		"timestamp":  "int64",
+		"timestamp":  "time.Time",
 		"enum":       "string",
 		"set":        "string",
 		"blob":       "string",
@@ -139,8 +140,10 @@ func ToGoStruct(sql string, tagTypes []string) (string, error) {
 		for _, tagType := range tagTypes {
 			tags = append(tags, GetTag(tagType, tableField.Name, []string{"gorm"}))
 		}
+		structFieldName := UnderscoreToUpperCamelCase(tableField.Name)
 		fields = append(fields, &StructField{
-			Name:     UnderscoreToUpperCamelCase(tableField.Name),
+			RealName: structFieldName,
+			Name:     ProcessIDForFieldName(structFieldName),
 			DataType: DataTypeMap[tableField.DataType],
 			Tags:     tags,
 			Comment:  tableField.Comment,
@@ -181,4 +184,10 @@ func FormatGoStruct(structInfo *StructInfo) string {
 		return str
 	}
 	return fmtStr
+}
+
+// ProcessIDForFieldName
+// Example: XxxId => XxxID
+func ProcessIDForFieldName(name string) string {
+	return utils.If[string](strings.HasSuffix(name, "Id"), name[:len(name)-2]+"ID", name)
 }

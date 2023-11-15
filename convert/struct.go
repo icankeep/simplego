@@ -18,6 +18,7 @@ type StructInfo struct {
 }
 
 type StructField struct {
+	RealName string
 	Name     string
 	DataType string
 	Tags     []*StructTag
@@ -172,19 +173,14 @@ func GetTagValue(tagType, fieldName string) string {
 }
 
 func GetTag(tagType, fieldName string, originNameTags []string) *StructTag {
-	if slicex.Contains(originNameTags, tagType) {
-		return &StructTag{
-			TagType: tagType,
-			Value:   fieldName,
-		}
-	}
 
 	var value string
 	switch tagType {
 	case "json":
 		value = UnderscoreToUpperCamelCase(fieldName)
 	case "gorm":
-		value = CamelCaseToUnderscore(fieldName)
+		value = utils.If[string](slicex.Contains(originNameTags, tagType), fieldName, CamelCaseToUnderscore(fieldName))
+		value = "column:" + value
 	case "xml":
 		value = CamelCaseToUnderscore(fieldName)
 	case "yaml":
@@ -192,7 +188,7 @@ func GetTag(tagType, fieldName string, originNameTags []string) *StructTag {
 	default:
 		value = UnderscoreToUpperCamelCase(fieldName)
 	}
-
+	value = ProcessIDForFieldName(value)
 	return &StructTag{
 		TagType: tagType,
 		Value:   value,
