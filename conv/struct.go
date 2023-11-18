@@ -1,4 +1,4 @@
-package convert
+package conv
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"github.com/icankeep/simplego/setx"
 	"github.com/icankeep/simplego/slicex"
 	"github.com/icankeep/simplego/utils"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -15,6 +16,27 @@ type StructInfo struct {
 	StructBody string
 	Fields     []*StructField
 	Comment    string
+}
+
+func (s *StructInfo) String() string {
+	fieldLines := make([]string, 0)
+	for _, field := range s.Fields {
+		tagStrs := make([]string, 0)
+		for _, tag := range field.Tags {
+			tagStrs = append(tagStrs, fmt.Sprintf(StructTagTemplate, tag.TagType, tag.Value))
+		}
+		comment := ""
+		if field.Comment != "" {
+			comment = fmt.Sprintf("// %s", field.Comment)
+		}
+		fieldLine := fmt.Sprintf(StructLineTemplate, field.Name, field.DataType, strings.Join(tagStrs, " "), comment)
+		fieldLines = append(fieldLines, fieldLine)
+	}
+	comment := ""
+	if s.Comment != "" {
+		comment = fmt.Sprintf("// %s %s", s.Name, s.Comment)
+	}
+	return fmt.Sprintf(StructTemplate, comment, s.Name, strings.Join(fieldLines, ""))
 }
 
 type StructField struct {
@@ -33,9 +55,8 @@ type StructTag struct {
 }
 
 var (
-	TestStruct          = "type Person struct {\n\tName     string `json:\"name\"`\n\tAge      int    `json:\"age\"`\n\tLocation string `json:\"location\"`\n}"
-	StructPattern       = `\s*type\s+([^\s]+)\s+struct\s+{([^}]+)}`
-	FieldLinePattern    = "\\s+(([^\\s]+)?\\s+([^\\s]+)([^\\n\\r]*))"
+	StructPattern       = `(?s)\s*type\s+([^\s]+)\s+struct\s+{(.*?)\n}`
+	FieldLinePattern    = "\\s+(([^\\s]+)?\\s+([^\\n/`]+)([^\\n\\r]*))"
 	FieldCommentPattern = "(//[^\\n\\r]+)"
 	TagsPattern         = "`(.+)`"
 	TagPattern          = "([^\\s:]+):\"([^\"]+)\""
@@ -91,11 +112,14 @@ func (s *StructParseHandler) parseFields() bool {
 	}
 	fields := make([]*StructField, 0)
 	for _, line := range match {
+		if strings.HasPrefix(strings.TrimSpace(line[0]), "//") {
+			continue
+		}
 		commentMatch := fieldCommentReg.FindStringSubmatch(line[0])
 		tagsStr, tags := s.parseTags(line[4])
 		fields = append(fields, &StructField{
 			Name:     line[2],
-			DataType: line[3],
+			DataType: strings.TrimSpace(line[3]),
 			TagsStr:  tagsStr,
 			Tags:     tags,
 			LineStr:  line[1],
@@ -130,9 +154,15 @@ func (s *StructParseHandler) parseTags(str string) (tagsStr string, tags []*Stru
 
 func (s *StructParseHandler) Handle(input string) (string, error) {
 	if err := s.Parse(input); err != nil {
-		return "", err
+		return "", fmt.Errorf("parse struct error, %v", err)
 	}
 
+	s.addOrRemoveTags()
+
+	return fmtx.FormatGoCode(s.Output)
+}
+
+func (s *StructParseHandler) addOrRemoveTags() {
 	s.Output = s.FmtInput
 	for _, field := range s.Fields {
 		if len(field.Name) == 0 {
@@ -165,7 +195,6 @@ func (s *StructParseHandler) Handle(input string) (string, error) {
 
 		s.Output = strings.Replace(s.Output, field.LineStr, newLine, 1)
 	}
-	return s.Output, nil
 }
 
 func GetTagValue(tagType, fieldName string) string {
@@ -193,4 +222,13 @@ func GetTag(tagType, fieldName string, originNameTags []string) *StructTag {
 		TagType: tagType,
 		Value:   value,
 	}
+}
+
+func FormatGo(input string) string {
+	fmtStr, err := fmtx.FormatGoCode(input)
+	if err != nil {
+		log.Printf("format go struct error: %v\n", err)
+		return input
+	}
+	return fmtStr
 }

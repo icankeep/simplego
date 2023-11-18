@@ -1,10 +1,9 @@
-package convert
+package conv
 
 import (
 	"fmt"
 	"github.com/icankeep/simplego/fmtx"
 	"github.com/icankeep/simplego/utils"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -155,35 +154,8 @@ func ToGoStruct(sql string, tagTypes []string) (string, error) {
 	structInfo.Comment = h.TableComment
 
 	// 4. format结构体字符串
-	return FormatGoStruct(structInfo), nil
-}
-
-func FormatGoStruct(structInfo *StructInfo) string {
-	fieldLines := make([]string, 0)
-	for _, field := range structInfo.Fields {
-		tagStrs := make([]string, 0)
-		for _, tag := range field.Tags {
-			tagStrs = append(tagStrs, fmt.Sprintf(StructTagTemplate, tag.TagType, tag.Value))
-		}
-		comment := ""
-		if field.Comment != "" {
-			comment = fmt.Sprintf("// %s", field.Comment)
-		}
-		fieldLine := fmt.Sprintf(StructLineTemplate, field.Name, field.DataType, strings.Join(tagStrs, " "), comment)
-		fieldLines = append(fieldLines, fieldLine)
-	}
-	comment := ""
-	if structInfo.Comment != "" {
-		comment = fmt.Sprintf("// %s %s", structInfo.Name, structInfo.Comment)
-	}
-	str := fmt.Sprintf(StructTemplate, comment, structInfo.Name, strings.Join(fieldLines, ""))
-
-	fmtStr, err := fmtx.FormatGoCode(str)
-	if err != nil {
-		log.Printf("format go struct error: %v\n", err)
-		return str
-	}
-	return fmtStr
+	code := structInfo.String()
+	return fmtx.FormatGoCodeOrDefault(code, code), nil
 }
 
 // ProcessIDForFieldName

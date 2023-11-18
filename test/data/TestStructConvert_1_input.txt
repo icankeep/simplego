@@ -1,0 +1,9 @@
+type StructParseHandler struct {
+	Input      string `json:"input"`     // Required ...
+	FmtInput   string `json:"fmt_input"` // Required ssss ...
+	Output     string
+	AddTags    []string
+	DeleteTags []string
+
+	StructInfo
+}
