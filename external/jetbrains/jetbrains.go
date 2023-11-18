@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"path"
+	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -27,8 +29,6 @@ const (
 	Aqua      IDEType = "Aqua"
 	Fleet     IDEType = "Fleet"
 	DataSpell IDEType = "DataSpell"
-
-	BasePath = "$HOME/Library/Application Support/JetBrains"
 )
 
 type Project struct {
@@ -39,9 +39,17 @@ type Project struct {
 }
 
 // GetBasePath https://www.jetbrains.com/help/idea/directories-used-by-the-ide-to-store-settings-caches-plugins-and-logs.html#config-directory
-// TODO Add support for linux and windows
 func GetBasePath() string {
-	return os.ExpandEnv(BasePath)
+	switch runtime.GOOS {
+	case "darwin":
+		return os.ExpandEnv("$HOME/Library/Application Support/JetBrains")
+	case "windows":
+		return os.ExpandEnv("$APPDATA\\JetBrains")
+	case "linux":
+		return os.ExpandEnv("$HOME/.config/JetBrains")
+	default:
+		return ""
+	}
 }
 
 func GetRecentProjects(jetBrainsType IDEType) ([]*Project, error) {
@@ -75,8 +83,7 @@ func GetAllXMLFiles(jetBrainsType IDEType, dirs []os.DirEntry) []string {
 		if !dir.IsDir() || !strings.HasPrefix(dir.Name(), string(jetBrainsType)) {
 			continue
 		}
-		recentProjectXmlFilePath := fmt.Sprintf("%s/%s/options/recentProjects.xml", GetBasePath(), dir.Name())
-
+		recentProjectXmlFilePath := filepath.Join(GetBasePath(), dir.Name(), "options", "recentProjects.xml")
 		if exist, err := utils.PathExists(recentProjectXmlFilePath); err != nil || !exist {
 			continue
 		}
@@ -101,6 +108,7 @@ func GetProjectsFromXML(walkFiles []string) ([]*Project, error) {
 			continue
 		}
 		for _, ele := range projectsEle.ChildElements() {
+			// TODO: check for windows
 			projectPath := strings.Replace(GetElementAttr(ele.Attr, "key"), "$USER_HOME$", "$HOME", 1)
 			projectPath = os.ExpandEnv(projectPath)
 			if len(projectPath) == 0 {

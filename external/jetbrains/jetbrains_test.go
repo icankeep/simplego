@@ -1,9 +1,11 @@
 package jetbrains
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -39,4 +41,9 @@ func TestGetRecentProjects(t *testing.T) {
 	projects, err = GetRecentProjects(PyCharm)
 	a.NoError(err)
 	a.NotEmpty(projects)
+}
+
+func TestLinux(t *testing.T) {
+	//a := assert.New(t)
+	fmt.Println(runtime.GOOS)
 }
