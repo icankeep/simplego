@@ -1,17 +1,16 @@
-package convert
+package conv
 
 import (
 	"fmt"
 	"github.com/icankeep/simplego/fmtx"
 	"github.com/icankeep/simplego/utils"
-	"log"
 	"regexp"
 	"strings"
 )
 
 var (
 	TableNamePattern         = "(?i)create\\s+table\\s+`?([^\\s\\(`]+)`?"
-	TableFieldPattern        = "(?i)\\s*`?([^`\\s]+)`?\\s+(tinyint|smallint|int|mediumint|bigint|float|double|decimal|varchar|char|tinytext|text|mediumtext|longtext|datetime|time|date|enum|set|blob|timestamp)[\\s,\\)\\(]+(.+)"
+	TableFieldPattern        = "(?i)\\s*`?([^`\\s]+)`?\\s+(tinyint\\(1\\)|tinyint|smallint|int|mediumint|bigint|float|double|decimal|varchar|char|tinytext|text|mediumtext|longtext|datetime|time|date|enum|set|blob|timestamp)[\\s,\\)\\(]+(.+)"
 	TableFieldCommentPattern = `(?i)\s+COMMENT ['"]([^'"]+)['"]`
 	TableCommentPattern      = `(?i)\s*\).+COMMENT=['"]([^'"]+)['"]`
 	StructTemplate           = `%s
@@ -21,6 +20,7 @@ type %s struct {
 	StructLineTemplate = "\t%s %s `%s` %s\n"
 	StructTagTemplate  = "%s:\"%s\""
 	DataTypeMap        = map[string]string{
+		"tinyint(1)": "bool",
 		"tinyint":    "int8",
 		"smallint":   "int16",
 		"mediumint":  "int32",
@@ -38,7 +38,7 @@ type %s struct {
 		"time":       "time.Time",
 		"date":       "time.Time",
 		"datetime":   "time.Time",
-		"timestamp":  "int64",
+		"timestamp":  "time.Time",
 		"enum":       "string",
 		"set":        "string",
 		"blob":       "string",
@@ -56,24 +56,6 @@ type SQLParseHandler struct {
 	TableName    string
 	TableFields  []*TableField
 	TableComment string
-}
-
-type StructInfo struct {
-	Name    string
-	Fields  []*StrucField
-	Comment string
-}
-
-type StrucField struct {
-	Name     string
-	DataType string
-	Tags     []*StructTag
-	Comment  string
-}
-
-type StructTag struct {
-	TagType string
-	Value   string
 }
 
 func ParseTableName(sql string) (string, bool) {
@@ -151,14 +133,16 @@ func ToGoStruct(sql string, tagTypes []string) (string, error) {
 	structInfo.Name = UnderscoreToUpperCamelCase(h.TableName)
 
 	// 2. 遍历字段
-	fields := make([]*StrucField, 0)
+	fields := make([]*StructField, 0)
 	for _, tableField := range h.TableFields {
 		tags := make([]*StructTag, 0)
 		for _, tagType := range tagTypes {
-			tags = append(tags, GetTag(tagType, tableField.Name))
+			tags = append(tags, GetTag(tagType, tableField.Name, []string{"gorm"}))
 		}
-		fields = append(fields, &StrucField{
-			Name:     UnderscoreToUpperCamelCase(tableField.Name),
+		structFieldName := UnderscoreToUpperCamelCase(tableField.Name)
+		fields = append(fields, &StructField{
+			RealName: structFieldName,
+			Name:     ProcessIDForFieldName(structFieldName),
 			DataType: DataTypeMap[tableField.DataType],
 			Tags:     tags,
 			Comment:  tableField.Comment,
@@ -170,53 +154,12 @@ func ToGoStruct(sql string, tagTypes []string) (string, error) {
 	structInfo.Comment = h.TableComment
 
 	// 4. format结构体字符串
-	return FormatGoStruct(structInfo), nil
+	code := structInfo.String()
+	return fmtx.FormatGoCodeOrDefault(code, code), nil
 }
 
-func GetTag(tagType, fieldName string) *StructTag {
-	var value string
-
-	switch tagType {
-	case "json":
-		value = UnderscoreToLowerCamelCase(fieldName)
-	case "gorm":
-		value = fieldName
-	case "xml":
-		value = fieldName
-	default:
-		value = UnderscoreToUpperCamelCase(fieldName)
-	}
-
-	return &StructTag{
-		TagType: tagType,
-		Value:   value,
-	}
-}
-
-func FormatGoStruct(structInfo *StructInfo) string {
-	fieldLines := make([]string, 0)
-	for _, field := range structInfo.Fields {
-		tagStrs := make([]string, 0)
-		for _, tag := range field.Tags {
-			tagStrs = append(tagStrs, fmt.Sprintf(StructTagTemplate, tag.TagType, tag.Value))
-		}
-		comment := ""
-		if field.Comment != "" {
-			comment = fmt.Sprintf("// %s", field.Comment)
-		}
-		fieldLine := fmt.Sprintf(StructLineTemplate, field.Name, field.DataType, strings.Join(tagStrs, " "), comment)
-		fieldLines = append(fieldLines, fieldLine)
-	}
-	comment := ""
-	if structInfo.Comment != "" {
-		comment = fmt.Sprintf("// %s %s", structInfo.Name, structInfo.Comment)
-	}
-	str := fmt.Sprintf(StructTemplate, comment, structInfo.Name, strings.Join(fieldLines, ""))
-
-	fmtStr, err := fmtx.FormatGoCode(str)
-	if err != nil {
-		log.Printf("format go struct error: %v\n", err)
-		return str
-	}
-	return fmtStr
+// ProcessIDForFieldName
+// Example: XxxId => XxxID
+func ProcessIDForFieldName(name string) string {
+	return utils.If[string](strings.HasSuffix(name, "Id"), name[:len(name)-2]+"ID", name)
 }

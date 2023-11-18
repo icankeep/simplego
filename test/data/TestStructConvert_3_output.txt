@@ -1,0 +1,26 @@
+type StructExample struct {
+	StringField        string              `xml:"string_field" json:"StringField"`
+	IntField           int                 `xml:"int_field" json:"IntField"`
+	BoolField          bool                `xml:"bool_field" json:"BoolField"`
+	PointerField       *string             `xml:"pointer_field" json:"PointerField"`
+	SliceField         []string            `xml:"slice_field" json:"SliceField"`
+	MapField           map[string]int      `xml:"map_field" json:"MapField"`
+	StructField        StructNested        `xml:"struct_field" json:"StructField"`
+	InterfaceField     interface{}         `xml:"interface_field" json:"InterfaceField"`
+	ByteField          byte                `xml:"byte_field" json:"ByteField"`
+	RuneField          rune                `xml:"rune_field" json:"RuneField"`
+	UintptrField       uintptr             `xml:"uintptr_field" json:"UintptrField"`
+	Complex128Field    complex128          `xml:"complex128field" json:"Complex128Field"`
+	UnsafePointerField unsafe.Pointer      `xml:"unsafe_pointer_field" json:"UnsafePointerField"`
+	Chan1Field         chan int            `xml:"chan1field" json:"Chan1Field"`
+	Chan2Field         <-chan StructNested `xml:"chan2field" json:"Chan2Field"`
+	Chan3Field         chan<- string       `xml:"chan3field" json:"Chan3Field"`
+	FuncField          func()              `xml:"func_field" json:"FuncField"`
+	StructSliceField   []StructNested      `xml:"struct_slice_field" json:"StructSliceField"`
+	// 添加一个切片字段
+	IntSliceField []int `xml:"int_slice_field" json:"IntSliceField"`
+}
+
+type StructExampl2e struct {
+	StringField string
+}

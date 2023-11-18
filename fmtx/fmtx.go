@@ -71,7 +71,15 @@ func formatGoCode(code string) (string, error) {
 func FormatGoCode(code string) (string, error) {
 	fmtCode, err := format.Source([]byte(code))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("format code err, %v", err)
 	}
 	return string(fmtCode), nil
+}
+
+func FormatGoCodeOrDefault(code string, defaultValue string) string {
+	fmtCode, err := format.Source([]byte(code))
+	if err != nil {
+		return defaultValue
+	}
+	return string(fmtCode)
 }

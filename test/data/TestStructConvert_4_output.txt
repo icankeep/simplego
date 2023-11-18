@@ -1,0 +1,26 @@
+type StructExample struct {
+	StringField        string              `yaml:"StringField"`
+	IntField           int                 `yaml:"IntField"`
+	BoolField          bool                `yaml:"BoolField"`
+	PointerField       *string             `yaml:"PointerField"`
+	SliceField         []string            `yaml:"SliceField"`
+	MapField           map[string]int      `yaml:"MapField"`
+	StructField        StructNested        `yaml:"StructField"`
+	InterfaceField     interface{}         `yaml:"InterfaceField"`
+	ByteField          byte                `yaml:"ByteField"`
+	RuneField          rune                `yaml:"RuneField"`
+	UintptrField       uintptr             `yaml:"UintptrField"`
+	Complex128Field    complex128          `yaml:"Complex128Field"`
+	UnsafePointerField unsafe.Pointer      `yaml:"UnsafePointerField"`
+	Chan1Field         chan int            `yaml:"Chan1Field"`
+	Chan2Field         <-chan StructNested `yaml:"Chan2Field"`
+	Chan3Field         chan<- string       `yaml:"Chan3Field"`
+	FuncField          func()              `yaml:"FuncField"`
+	StructSliceField   []StructNested      `yaml:"StructSliceField"`
+	// 添加一个切片字段
+	IntSliceField []int `yaml:"IntSliceField"`
+}
+
+type StructExampl2e struct {
+	StringField string
+}

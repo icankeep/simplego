@@ -1,0 +1,26 @@
+type StructExample struct {
+	StringField        string
+	IntField           int
+	BoolField          bool
+	PointerField       *string
+	SliceField         []string
+	MapField           map[string]int
+	StructField        StructNested
+	InterfaceField     interface{}
+	ByteField          byte
+	RuneField          rune
+	UintptrField       uintptr
+	Complex128Field    complex128
+	UnsafePointerField unsafe.Pointer
+	Chan1Field         chan int
+	Chan2Field         <-chan StructNested
+	Chan3Field         chan<- string
+	FuncField          func()
+	StructSliceField   []StructNested
+	// 添加一个切片字段
+	IntSliceField []int
+}
+
+type StructExampl2e struct {
+        StringField        string
+}
