@@ -11,12 +11,22 @@ import (
 	"strings"
 )
 
-type JetBrainsType string
+type IDEType string
 
 const (
-	GoLand  JetBrainsType = "GoLand"
-	Idea    JetBrainsType = "IntelliJIdea"
-	PyCharm JetBrainsType = "PyCharm"
+	GoLand    IDEType = "GoLand"
+	Idea      IDEType = "IntelliJIdea"
+	PyCharm   IDEType = "PyCharm"
+	CLion     IDEType = "CLion"
+	WebStorm  IDEType = "WebStorm"
+	PhpStorm  IDEType = "PhpStorm"
+	RustRover IDEType = "RustRover"
+	RubyMine  IDEType = "RubyMine"
+	Rider     IDEType = "Rider"
+	DataGrip  IDEType = "DataGrip"
+	Aqua      IDEType = "Aqua"
+	Fleet     IDEType = "Fleet"
+	DataSpell IDEType = "DataSpell"
 
 	BasePath = "$HOME/Library/Application Support/JetBrains"
 )
@@ -28,11 +38,13 @@ type Project struct {
 	LastActivationTimestamp int64
 }
 
+// GetBasePath https://www.jetbrains.com/help/idea/directories-used-by-the-ide-to-store-settings-caches-plugins-and-logs.html#config-directory
+// TODO Add support for linux and windows
 func GetBasePath() string {
 	return os.ExpandEnv(BasePath)
 }
 
-func GetRecentProjects(jetBrainsType JetBrainsType) ([]*Project, error) {
+func GetRecentProjects(jetBrainsType IDEType) ([]*Project, error) {
 	// 1. Get path
 	basePath := GetBasePath()
 	if exist, err := utils.PathExists(basePath); err != nil {
@@ -57,7 +69,7 @@ func GetRecentProjects(jetBrainsType JetBrainsType) ([]*Project, error) {
 	return projects, nil
 }
 
-func GetAllXMLFiles(jetBrainsType JetBrainsType, dirs []os.DirEntry) []string {
+func GetAllXMLFiles(jetBrainsType IDEType, dirs []os.DirEntry) []string {
 	walkFiles := make([]string, 0)
 	for _, dir := range dirs {
 		if !dir.IsDir() || !strings.HasPrefix(dir.Name(), string(jetBrainsType)) {
