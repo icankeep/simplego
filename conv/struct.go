@@ -6,7 +6,6 @@ import (
 	"github.com/icankeep/simplego/setx"
 	"github.com/icankeep/simplego/slicex"
 	"github.com/icankeep/simplego/utils"
-	"log"
 	"regexp"
 	"strings"
 )
@@ -222,13 +221,4 @@ func GetTag(tagType, fieldName string, originNameTags []string) *StructTag {
 		TagType: tagType,
 		Value:   value,
 	}
-}
-
-func FormatGo(input string) string {
-	fmtStr, err := fmtx.FormatGoCode(input)
-	if err != nil {
-		log.Printf("format go struct error: %v\n", err)
-		return input
-	}
-	return fmtStr
 }
