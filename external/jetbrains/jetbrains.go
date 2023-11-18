@@ -17,19 +17,19 @@ import (
 type IDEType string
 
 const (
-	GoLand    IDEType = "GoLand"
-	Idea      IDEType = "IntelliJIdea"
-	PyCharm   IDEType = "PyCharm"
-	CLion     IDEType = "CLion"
-	WebStorm  IDEType = "WebStorm"
-	PhpStorm  IDEType = "PhpStorm"
-	RustRover IDEType = "RustRover"
-	RubyMine  IDEType = "RubyMine"
-	Rider     IDEType = "Rider"
-	DataGrip  IDEType = "DataGrip"
-	Aqua      IDEType = "Aqua"
-	Fleet     IDEType = "Fleet"
-	DataSpell IDEType = "DataSpell"
+	GoLand       IDEType = "GoLand"
+	IntelliJIdea IDEType = "IntelliJIdea"
+	PyCharm      IDEType = "PyCharm"
+	CLion        IDEType = "CLion"
+	WebStorm     IDEType = "WebStorm"
+	PhpStorm     IDEType = "PhpStorm"
+	RustRover    IDEType = "RustRover"
+	RubyMine     IDEType = "RubyMine"
+	Rider        IDEType = "Rider"
+	DataGrip     IDEType = "DataGrip"
+	Aqua         IDEType = "Aqua"
+	Fleet        IDEType = "Fleet"
+	DataSpell    IDEType = "DataSpell"
 )
 
 type Project struct {

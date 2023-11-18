@@ -43,7 +43,7 @@ func TestGetRecentProjects(t *testing.T) {
 		projectDirs.Add(project.Dir)
 	}
 
-	projects, err = GetRecentProjects(Idea)
+	projects, err = GetRecentProjects(IntelliJIdea)
 	a.NoError(err)
 	a.NotEmpty(projects)
 
