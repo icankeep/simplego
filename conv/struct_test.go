@@ -38,12 +38,12 @@ func TestStructConvert_4(t *testing.T) {
 
 func (s *StructParseHandler) testStructConvert(t *testing.T, testKey string, print bool) {
 	a := assert.New(t)
-	output, err := s.Handle(utils.MustReadStringFromFile(fmt.Sprintf("../test/data/TestStructConvert_%v_input.txt", testKey)))
+	output, err := s.Handle(utils.MustReadStringFromFile(fmt.Sprintf("../utest/data/TestStructConvert_%v_input.txt", testKey)))
 
 	a.NoError(err, fmt.Sprintf("%+v", err))
 
 	if print {
 		fmt.Println(output)
 	}
-	a.Equal(utils.MustReadStringFromFile(fmt.Sprintf("../test/data/TestStructConvert_%v_output.txt", testKey)), output)
+	a.Equal(utils.MustReadStringFromFile(fmt.Sprintf("../utest/data/TestStructConvert_%v_output.txt", testKey)), output)
 }

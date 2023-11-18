@@ -1,0 +1,196 @@
+<application>
+  <component name="RecentProjectsManager">
+    <option name="additionalInfo">
+      <map>
+        <entry key="$USER_HOME$/go/src/awesomeProject">
+          <value>
+            <RecentProjectMetaInfo frameTitle="awesomeProject – main.go" projectWorkspaceId="2IgELlGdySUMiws6J6p09XkBYRX">
+              <option name="activationTimestamp" value="1690634440044" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-203.8084.22" />
+              <option name="buildTimestamp" value="1619070017173" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="4" />
+              </option>
+              <frame x="0" y="0" width="1440" height="900" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1690633942632" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/{query}/{query}/{query}">
+          <value>
+            <RecentProjectMetaInfo frameTitle="{query}" projectWorkspaceId="2VThiG64zF84XIYFJXC24FxfHwN">
+              <option name="activationTimestamp" value="1694866145372" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347677349" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="2" />
+              </option>
+              <frame x="0" y="0" width="1440" height="900" extendedState="6" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1694866103030" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/etcd-io/etcd">
+          <value>
+            <RecentProjectMetaInfo frameTitle="etcd – README.md" projectWorkspaceId="2VTr7IQP3ewg6djrh1ncXYpQr3v">
+              <option name="activationTimestamp" value="1694876537702" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347677349" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="1" />
+              </option>
+              <frame x="20" y="45" width="1400" height="835" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1694870744419" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/kubernetes/kubernetes">
+          <value>
+            <RecentProjectMetaInfo frameTitle="kubernetes – go.mod" projectWorkspaceId="2VTiu6W6SdQv1SqZJYQu3L6aQ08">
+              <option name="activationTimestamp" value="1695475196393" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347669601" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="0" />
+              </option>
+              <frame x="0" y="0" width="1440" height="900" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1694913432750" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/tidwall/gjson">
+          <value>
+            <RecentProjectMetaInfo frameTitle="gjson – gjson.go" projectWorkspaceId="2WkVFGmJiD5GJAykEkTcs6ofzIG">
+              <option name="activationTimestamp" value="1698491407120" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347692561" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="6" />
+              </option>
+              <frame x="20" y="45" width="1400" height="835" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1697276461067" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/mdreizin/chrome-bookmarks-alfred-workflow">
+          <value>
+            <RecentProjectMetaInfo frameTitle="chrome-bookmarks-alfred-workflow – workflow-gen/main.go" projectWorkspaceId="2XOWnQ6di1iPTiwPWb2mXG5wMie">
+              <option name="activationTimestamp" value="1698504386678" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347692561" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="5" />
+              </option>
+              <frame x="20" y="45" width="1400" height="835" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1698500773661" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/rosedblabs/rosedb">
+          <value>
+            <RecentProjectMetaInfo frameTitle="rosedb – btree.go" projectWorkspaceId="2XObfTQE9Hk311bxi4l4GJfTPsu">
+              <option name="activationTimestamp" value="1698507941029" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347692561" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="4" />
+              </option>
+              <frame x="20" y="45" width="1400" height="835" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1698503177438" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/https">
+          <value>
+            <RecentProjectMetaInfo frameTitle="https – README.md" projectWorkspaceId="2Xi7oIvjsg5OGnS2N0zsT6RSJud">
+              <option name="activationTimestamp" value="1699100284112" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347713430" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo associatedIndex="3" />
+              </option>
+              <frame x="20" y="45" width="1400" height="835" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1699100225028" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go_code/demo">
+          <value>
+            <RecentProjectMetaInfo frameTitle="demo – test_decode.go" projectWorkspaceId="2TFMffzBGsYpL5bG2UUaIYYDBR6">
+              <option name="activationTimestamp" value="1699366371017" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347691099" />
+              <frame x="0" y="25" width="1440" height="875" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1699366370585" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/idoubi/sql2struct">
+          <value>
+            <RecentProjectMetaInfo frameTitle="sql2struct – demo.sql" projectWorkspaceId="2Y4xQrP6puLyoAGBC4bnk1SyoPC">
+              <option name="activationTimestamp" value="1699805813278" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347691099" />
+              <frame x="20" y="45" width="1400" height="835" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1699798641724" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/golang/go">
+          <value>
+            <RecentProjectMetaInfo frameTitle="go – ~/go/src/github.com/golang/go/src/cmd/go/internal/modfetch/fetch.go" opened="true" projectWorkspaceId="2VTqcAT4LhzVV9mY80K4s0MaMBR">
+              <option name="activationTimestamp" value="1700270892130" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347696387" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo />
+              </option>
+              <frame x="0" y="0" width="1440" height="900" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1700147103769" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+        <entry key="$USER_HOME$/go/src/github.com/icankeep/simplego">
+          <value>
+            <RecentProjectMetaInfo frameTitle="simplego – struct_test.go" opened="true" projectWorkspaceId="2Xi80c7GsFrs8g8HtM9BWhKS4SZ">
+              <option name="activationTimestamp" value="1700295261477" />
+              <option name="binFolder" value="$APPLICATION_HOME_DIR$/bin" />
+              <option name="build" value="GO-232.8660.185" />
+              <option name="buildTimestamp" value="1690347696387" />
+              <option name="colorInfo">
+                <RecentProjectColorInfo />
+              </option>
+              <frame x="0" y="0" width="1440" height="900" fullScreen="true" />
+              <option name="productionCode" value="GO" />
+              <option name="projectOpenTimestamp" value="1700270895322" />
+            </RecentProjectMetaInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="lastOpenedProject" value="$USER_HOME$/go/src/github.com/icankeep/simplego" />
+    <option name="lastProjectLocation" value="$USER_HOME$/go_code" />
+  </component>
+</application>
