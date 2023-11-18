@@ -2,6 +2,7 @@ package jetbrains
 
 import (
 	"fmt"
+	"github.com/icankeep/simplego/setx"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
@@ -33,6 +34,14 @@ func TestGetRecentProjects(t *testing.T) {
 	projects, err := GetRecentProjects(GoLand)
 	a.NoError(err)
 	a.NotEmpty(projects)
+	projectDirs := setx.NewSet[string]()
+	for _, project := range projects {
+		if projectDirs.Contains(project.Dir) {
+			a.FailNow("project duplicate: " + project.Dir)
+		}
+
+		projectDirs.Add(project.Dir)
+	}
 
 	projects, err = GetRecentProjects(Idea)
 	a.NoError(err)

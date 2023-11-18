@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/beevik/etree"
 	"github.com/icankeep/simplego/conv"
+	"github.com/icankeep/simplego/setx"
 	"github.com/icankeep/simplego/utils"
 	"log"
 	"os"
@@ -93,6 +94,7 @@ func GetAllXMLFiles(jetBrainsType IDEType, dirs []os.DirEntry) []string {
 }
 
 func GetProjectsFromXML(walkFiles []string) ([]*Project, error) {
+	projectDirs := setx.NewSet[string]()
 	projects := make([]*Project, 0)
 	for _, xmlFile := range walkFiles {
 		doc := etree.NewDocument()
@@ -111,7 +113,7 @@ func GetProjectsFromXML(walkFiles []string) ([]*Project, error) {
 			// TODO: check for windows
 			projectPath := strings.Replace(GetElementAttr(ele.Attr, "key"), "$USER_HOME$", "$HOME", 1)
 			projectPath = os.ExpandEnv(projectPath)
-			if len(projectPath) == 0 {
+			if len(projectPath) == 0 || projectDirs.Contains(projectPath) {
 				continue
 			}
 			if exist, err := utils.PathExists(projectPath); err != nil || !exist {
@@ -124,6 +126,7 @@ func GetProjectsFromXML(walkFiles []string) ([]*Project, error) {
 			FindAndSetProjectOpenTimestamp(ele, project)
 			FindAndSetProjectActivationTimestamp(ele, project)
 			projects = append(projects, project)
+			projectDirs.Add(projectPath)
 		}
 	}
 	return projects, nil
