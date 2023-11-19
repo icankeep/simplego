@@ -137,7 +137,7 @@ func ToGoStruct(sql string, tagTypes []string) (string, error) {
 	for _, tableField := range h.TableFields {
 		tags := make([]*StructTag, 0)
 		for _, tagType := range tagTypes {
-			tags = append(tags, GetTag(tagType, tableField.Name, []string{"gorm"}))
+			tags = append(tags, getTag(tagType, tableField.Name, []string{"gorm"}))
 		}
 		structFieldName := UnderscoreToUpperCamelCase(tableField.Name)
 		fields = append(fields, &StructField{

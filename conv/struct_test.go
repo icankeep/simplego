@@ -38,7 +38,7 @@ func TestStructConvert_4(t *testing.T) {
 
 func (s *StructParseHandler) testStructConvert(t *testing.T, testKey string, print bool) {
 	a := assert.New(t)
-	output, err := s.Handle(utils.MustReadStringFromFile(fmt.Sprintf("../utest/data/TestStructConvert_%v_input.txt", testKey)))
+	output, err := s.handle(utils.MustReadStringFromFile(fmt.Sprintf("../utest/data/TestStructConvert_%v_input.txt", testKey)))
 
 	a.NoError(err, fmt.Sprintf("%+v", err))
 
@@ -46,4 +46,11 @@ func (s *StructParseHandler) testStructConvert(t *testing.T, testKey string, pri
 		fmt.Println(output)
 	}
 	a.Equal(utils.MustReadStringFromFile(fmt.Sprintf("../utest/data/TestStructConvert_%v_output.txt", testKey)), output)
+}
+
+func TestAddTags_5(t *testing.T) {
+	s := &StructParseHandler{
+		AddTags: []string{"gorm"},
+	}
+	s.testStructConvert(t, "5", true)
 }

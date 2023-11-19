@@ -1,0 +1,9 @@
+type StructParseHandler struct {
+	Input      string   `gorm:"column:input"`
+	FmtInput   string   `gorm:"column:fmt_input"`
+	Output     string   `gorm:"column:output"`
+	AddTags    []string `gorm:"column:add_tags"`
+	DeleteTags []string `gorm:"column:delete_tags"`
+
+	StructInfo
+}

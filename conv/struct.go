@@ -62,8 +62,8 @@ var (
 )
 
 type StructParseHandler struct {
-	Input      string `json:"input"`     // Required ...
-	FmtInput   string `json:"fmt_input"` // Required ssss ...
+	Input      string
+	FmtInput   string
 	Output     string
 	AddTags    []string
 	DeleteTags []string
@@ -71,7 +71,21 @@ type StructParseHandler struct {
 	StructInfo
 }
 
-func (s *StructParseHandler) Parse(input string) (err error) {
+func RemoveTags(input string, tags []string) (string, error) {
+	h := &StructParseHandler{
+		DeleteTags: tags,
+	}
+	return h.handle(input)
+}
+
+func AddTags(input string, tags []string) (string, error) {
+	h := &StructParseHandler{
+		AddTags: tags,
+	}
+	return h.handle(input)
+}
+
+func (s *StructParseHandler) parse(input string) (err error) {
 	s.Input = input
 	// 1. Format input
 	s.FmtInput, err = fmtx.FormatGoCode(input)
@@ -151,8 +165,8 @@ func (s *StructParseHandler) parseTags(str string) (tagsStr string, tags []*Stru
 	return tagsMatch[1], tags
 }
 
-func (s *StructParseHandler) Handle(input string) (string, error) {
-	if err := s.Parse(input); err != nil {
+func (s *StructParseHandler) handle(input string) (string, error) {
+	if err := s.parse(input); err != nil {
 		return "", fmt.Errorf("parse struct error, %v", err)
 	}
 
@@ -176,10 +190,10 @@ func (s *StructParseHandler) addOrRemoveTags() {
 			if tagTypes.Contains(tag) {
 				continue
 			}
-			newTagsStr = fmt.Sprintf("%s %s:\"%s\"", newTagsStr, tag, GetTagValue(tag, field.Name))
+			newTagsStr = fmt.Sprintf("%s %s:\"%s\"", newTagsStr, tag, getTagValue(tag, field.Name))
 		}
 		for _, tag := range s.DeleteTags {
-			tagStr := fmt.Sprintf("%s:\"%s\"", tag, GetTagValue(tag, field.Name))
+			tagStr := fmt.Sprintf("%s:\"%s\"", tag, getTagValue(tag, field.Name))
 			newTagsStr = strings.Replace(newTagsStr, " "+tagStr, "", 1)
 			newTagsStr = strings.Replace(newTagsStr, tagStr, "", 1)
 		}
@@ -196,11 +210,11 @@ func (s *StructParseHandler) addOrRemoveTags() {
 	}
 }
 
-func GetTagValue(tagType, fieldName string) string {
-	return GetTag(tagType, fieldName, nil).Value
+func getTagValue(tagType, fieldName string) string {
+	return getTag(tagType, fieldName, nil).Value
 }
 
-func GetTag(tagType, fieldName string, originNameTags []string) *StructTag {
+func getTag(tagType, fieldName string, originNameTags []string) *StructTag {
 
 	var value string
 	switch tagType {

@@ -1,0 +1,9 @@
+type StructParseHandler struct {
+	Input      string
+	FmtInput   string
+	Output     string
+	AddTags    []string
+	DeleteTags []string
+
+	StructInfo
+}

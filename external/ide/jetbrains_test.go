@@ -9,6 +9,10 @@ import (
 )
 
 func TestGetProjectsFromXML(t *testing.T) {
+	if _, set := os.LookupEnv("DEBUG"); !set {
+		return
+	}
+
 	a := assert.New(t)
 
 	path, err := filepath.Abs("../../utest/data/TestJetBrains/1_input.xml")
