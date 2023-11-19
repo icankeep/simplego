@@ -30,6 +30,7 @@ const (
 	Aqua         IDEType = "Aqua"
 	Fleet        IDEType = "Fleet"
 	DataSpell    IDEType = "DataSpell"
+	AppCode      IDEType = "AppCode"
 )
 
 type Project struct {
