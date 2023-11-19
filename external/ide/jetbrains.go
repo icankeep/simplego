@@ -1,4 +1,4 @@
-package jetbrains
+package ide
 
 import (
 	"fmt"
@@ -14,35 +14,12 @@ import (
 	"strings"
 )
 
-type IDEType string
-
-const (
-	GoLand       IDEType = "GoLand"
-	IntelliJIdea IDEType = "IntelliJIdea"
-	PyCharm      IDEType = "PyCharm"
-	CLion        IDEType = "CLion"
-	WebStorm     IDEType = "WebStorm"
-	PhpStorm     IDEType = "PhpStorm"
-	RustRover    IDEType = "RustRover"
-	RubyMine     IDEType = "RubyMine"
-	Rider        IDEType = "Rider"
-	DataGrip     IDEType = "DataGrip"
-	Aqua         IDEType = "Aqua"
-	Fleet        IDEType = "Fleet"
-	DataSpell    IDEType = "DataSpell"
-	AppCode      IDEType = "AppCode"
-	Writerside   IDEType = "Writerside"
+var (
+	XMLFiles = []string{"recentProjects.xml", "recentSolutions.xml"}
 )
 
-type Project struct {
-	Name                    string
-	Dir                     string
-	LastOpenTimestamp       int64
-	LastActivationTimestamp int64
-}
-
-// GetBasePath https://www.jetbrains.com/help/idea/directories-used-by-the-ide-to-store-settings-caches-plugins-and-logs.html#config-directory
-func GetBasePath() string {
+// GetJetBrainsBasePath https://www.jetbrains.com/help/idea/directories-used-by-the-ide-to-store-settings-caches-plugins-and-logs.html#config-directory
+func GetJetBrainsBasePath() string {
 	switch runtime.GOOS {
 	case "darwin":
 		return os.ExpandEnv("$HOME/Library/Application Support/JetBrains")
@@ -55,9 +32,9 @@ func GetBasePath() string {
 	}
 }
 
-func GetRecentProjects(jetBrainsType IDEType) ([]*Project, error) {
+func GetJetBrainsRecentProjects(jetBrainsType IDEType) ([]*Project, error) {
 	// 1. Get path
-	basePath := GetBasePath()
+	basePath := GetJetBrainsBasePath()
 	if exist, err := utils.PathExists(basePath); err != nil {
 		return nil, err
 	} else if !exist {
@@ -86,11 +63,14 @@ func GetAllXMLFiles(jetBrainsType IDEType, dirs []os.DirEntry) []string {
 		if !dir.IsDir() || !strings.HasPrefix(dir.Name(), string(jetBrainsType)) {
 			continue
 		}
-		recentProjectXmlFilePath := filepath.Join(GetBasePath(), dir.Name(), "options", "recentProjects.xml")
-		if exist, err := utils.PathExists(recentProjectXmlFilePath); err != nil || !exist {
-			continue
+
+		for _, file := range XMLFiles {
+			recentProjectXmlFilePath := filepath.Join(GetJetBrainsBasePath(), dir.Name(), "options", file)
+			if exist, err := utils.PathExists(recentProjectXmlFilePath); err != nil || !exist {
+				continue
+			}
+			walkFiles = append(walkFiles, recentProjectXmlFilePath)
 		}
-		walkFiles = append(walkFiles, recentProjectXmlFilePath)
 	}
 	return walkFiles
 }
@@ -107,13 +87,15 @@ func GetProjectsFromXML(walkFiles []string) ([]*Project, error) {
 		if rootEle == nil {
 			return nil, fmt.Errorf("root element is nil")
 		}
-		projectsEle := rootEle.FindElement("./component[@name='RecentProjectsManager']/option[@name='additionalInfo']/map")
+		projectsEle := rootEle.FindElement("./component/option[@name='additionalInfo']/map")
 		if projectsEle == nil {
 			continue
 		}
+		configDir, _, _ := strings.Cut(xmlFile, "/options/")
 		for _, ele := range projectsEle.ChildElements() {
 			// TODO: check for windows
 			projectPath := strings.Replace(GetElementAttr(ele.Attr, "key"), "$USER_HOME$", "$HOME", 1)
+			projectPath = strings.Replace(projectPath, "$APPLICATION_CONFIG_DIR$", configDir, 1)
 			projectPath = os.ExpandEnv(projectPath)
 			if len(projectPath) == 0 || projectDirs.Contains(projectPath) {
 				continue
