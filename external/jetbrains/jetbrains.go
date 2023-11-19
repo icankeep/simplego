@@ -31,6 +31,7 @@ const (
 	Fleet        IDEType = "Fleet"
 	DataSpell    IDEType = "DataSpell"
 	AppCode      IDEType = "AppCode"
+	Writerside   IDEType = "Writerside"
 )
 
 type Project struct {
